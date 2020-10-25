@@ -47,8 +47,6 @@ for t in range(1, len(securities_pct), rebal_freq):
     portfolio_value.loc[t: t_end, 'Portfolio'] = np.nansum(positions.loc[t: t_end], axis=1)
 
 
-positions['Portfolio'] = portfolio_value['Portfolio']
-
-positions.plot()
+portfolio_value.plot()
 plt.show()
 

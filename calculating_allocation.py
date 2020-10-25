@@ -11,7 +11,7 @@ from load_data import securities_pct
 securities_pct.set_index(keys='Date', inplace=True)
 
 # volatility lookback period
-lookback = 63
+lookback = 252
 
 
 def calculate_allocation(df_pct, vol_period, target_vol, rebal_freq):
@@ -37,7 +37,12 @@ def calculate_allocation(df_pct, vol_period, target_vol, rebal_freq):
 
 allocation = calculate_allocation(df_pct=securities_pct,
                                   vol_period=lookback,
-                                  target_vol=0.15,
+                                  target_vol=0.05,
                                   rebal_freq=21)
 
 securities_pct = securities_pct.iloc[lookback:]
+
+
+if __name__ == '__main__':
+    allocation.plot()
+    plt.show()
