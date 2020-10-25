@@ -109,8 +109,8 @@ def create_index(start, end, index_ticker):
 
 
 # Function Inputs
-start = '2018-01-01'
-end = '2018-12-31'
+start = '2012-01-01'
+end = '2020-09-30'
 lookback_period = None
 
 securities_df = create_stock_dataframe(watchlist='stocks_bonds_gold',
@@ -129,4 +129,8 @@ securities_df['Date'], securities_pct['Date'] = securities_df.index, securities_
 securities_df.reset_index(drop=True, inplace=True)
 securities_pct.reset_index(drop=True, inplace=True)
 
-print(securities_df.head())
+
+if __name__ == '__main__':
+
+
+    print(securities_df.head())
