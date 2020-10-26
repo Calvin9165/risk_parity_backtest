@@ -81,17 +81,17 @@ def volatility(strategy_series):
     return vol
 
 
-def backtest_perf_plot(equity_curve, rolling_dd, comparison=False, index=None):
+def backtest_perf_plot(equity_curve, rolling_dd, position_pnl, comparison=False, index=None):
     fig = plt.figure(figsize=(10, 7))
 
-    ax1 = fig.add_subplot(2, 1, 1)
+    ax1 = fig.add_subplot(3, 1, 1)
     ax1.plot(equity_curve, label='Backtest')
 
     formatter = ticker.StrMethodFormatter('${x:,.0f}')
     ax1.yaxis.set_major_formatter(formatter)
 
     # plotting the backtest drawdowns
-    ax2 = fig.add_subplot(2, 1, 2)
+    ax2 = fig.add_subplot(3, 1, 2)
     ax2.plot(rolling_dd, label='Backtest')
 
     # Just keep it simple here - we're going to be using csv data for the course so don't need to load in fresh data
@@ -105,8 +105,16 @@ def backtest_perf_plot(equity_curve, rolling_dd, comparison=False, index=None):
     pct_formatter = ticker.PercentFormatter(1, decimals=0)
     ax2.yaxis.set_major_formatter(pct_formatter)
 
+    # plotting the PnL for individual positions
+    ax3 = fig.add_subplot(3, 1, 3)
+    ax3.plot(position_pnl)
+
+    formatter = ticker.StrMethodFormatter('${x:,.0f}')
+    ax3.yaxis.set_major_formatter(formatter)
+
     ax1.legend()
     ax2.legend()
+    ax3.legend()
 
     return fig
 
