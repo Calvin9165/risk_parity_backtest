@@ -122,13 +122,6 @@ securities_df = create_stock_dataframe(watchlist='stocks_bonds_gold',
 # creating a daily pct_change version of the securities_df
 securities_pct = securities_df.pct_change()
 
-# keeping the date column in the data
-securities_df['Date'], securities_pct['Date'] = securities_df.index, securities_pct.index
-
-# removing the Datetime index so that we can use .loc without SetWithCopyWarnings
-securities_df.reset_index(drop=True, inplace=True)
-securities_pct.reset_index(drop=True, inplace=True)
-
 
 if __name__ == '__main__':
 

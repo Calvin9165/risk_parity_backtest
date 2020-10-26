@@ -13,9 +13,6 @@ import pandas_market_calendars as mcal
 # nyse = mcal.get_calendar(name='NYSE')
 # schedule = nyse.schedule(start_date='2000',end_date='2005')
 
-# # resetting the Date column to the index for the time being
-securities_pct.set_index(keys='Date', inplace=True)
-
 # volatility lookback period
 lookback = 252
 
@@ -47,6 +44,7 @@ allocation = calculate_allocation(df_pct=securities_pct,
                                   rebal_freq=21)
 
 
+# setting the % change for cash to 0
 securities_pct['Cash'] = 0
 
 # removing the daily pct_change data that's not required
@@ -56,4 +54,5 @@ securities_pct = securities_pct.loc[allocation.index[0]:].copy()
 
 if __name__ == '__main__':
     allocation.plot()
+    plt.show()
 
