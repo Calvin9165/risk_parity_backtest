@@ -27,6 +27,10 @@ portfolio_value.iloc[0]['Portfolio'] = invested
 # the $ value allocated in each position
 positions = pd.DataFrame(data=None, columns=securities_pct.columns, index=securities_pct.index)
 
+# pnl_stocks will hold the net PnL Data for each stock over the entire backtest
+pnl_stocks = pd.DataFrame(np.nan, columns=securities_pct.columns, index=securities_pct.index)
+
+
 for t in range(1, len(securities_pct), rebal_freq):
 
     rb_day = securities_pct.index[t]
@@ -41,10 +45,31 @@ for t in range(1, len(securities_pct), rebal_freq):
         positions.loc[rb_day: rb_end, position] = portfolio_value['Portfolio'][rb_value] * (
                     allocation[position][rb_day] * np.cumprod(1 + securities_pct.loc[rb_day: rb_end, position]))
 
+        # pnl_stocks.loc[rb_day:rb_end, position] = positions.loc[rb_day:rb_end, position] - (portfolio_value['Portfolio'][rb_value] / len(securities_pct.columns)) + pnl_stocks.loc[[
+        #                                                                              rb_value], position].values
+
+        # pnl_stocks.loc[rb_day:rb_end, ~position] = pnl_stocks.loc[[t - 1], ~idx].values
+
+        pnl_stocks.loc[rb_day:rb_end, position] = positions.loc[rb_day:rb_end, position] - positions.loc[rb_day, position]
+
     portfolio_value.loc[rb_day: rb_end, 'Portfolio'] = np.nansum(positions.loc[rb_day: rb_end], axis=1)
 
 if __name__ == '__main__':
-    
+
+    # pnl_stocks = pnl_stocks.cumsum()
+    pnl_stocks['Portfolio'] = pnl_stocks.sum(axis=1)
+
+    pnl_stock = pnl_stocks['Portfolio'].cumsum()
+
+    pnl_stock.plot()
+    plt.show()
+
+    # test = portfolio_value['Portfolio'] - invested
+    # test.plot()
+    #
+    # pnl_stocks.plot()
+    # plt.show()
+
     # creating the index to compare our strategy to
     index = create_index(start=portfolio_value.index[0],
                          end=portfolio_value.index[-1],
