@@ -28,7 +28,8 @@ portfolio_value.iloc[0]['Portfolio'] = invested
 positions = pd.DataFrame(data=None, columns=securities_pct.columns, index=securities_pct.index)
 
 # pnl_stocks will hold the net PnL Data for each stock over the entire backtest
-pnl_stocks = pd.DataFrame(np.nan, columns=securities_pct.columns, index=securities_pct.index)
+pnl_stocks = pd.DataFrame(data=0, columns=securities_pct.columns, index=securities_pct.index)
+
 
 
 for t in range(1, len(securities_pct), rebal_freq):
@@ -45,28 +46,21 @@ for t in range(1, len(securities_pct), rebal_freq):
         positions.loc[rb_day: rb_end, position] = portfolio_value['Portfolio'][rb_value] * (
                     allocation[position][rb_day] * np.cumprod(1 + securities_pct.loc[rb_day: rb_end, position]))
 
-        # pnl_stocks.loc[rb_day:rb_end, position] = positions.loc[rb_day:rb_end, position] - (portfolio_value['Portfolio'][rb_value] / len(securities_pct.columns)) + pnl_stocks.loc[[
-        #                                                                              rb_value], position].values
-
-        # pnl_stocks.loc[rb_day:rb_end, ~position] = pnl_stocks.loc[[t - 1], ~idx].values
-
-        pnl_stocks.loc[rb_day:rb_end, position] = positions.loc[rb_day:rb_end, position] - positions.loc[rb_day, position]
+        # NOTE: This method is accurate, but isn't perfect - is usually 2%-3% off from backtest #'s over period of time
+        # but that's okay since this is quick and dirty to begin with and gets the message across and does so quite accurately, just not perfectly
+        pnl_stocks.loc[rb_day:rb_end, position] = (positions.loc[rb_day:rb_end, position] - positions.loc[rb_day, position]) + pnl_stocks.loc[rb_value, position]
 
     portfolio_value.loc[rb_day: rb_end, 'Portfolio'] = np.nansum(positions.loc[rb_day: rb_end], axis=1)
 
+    # pnl_stocks.to_csv('pnl_stocks.csv')
+
 if __name__ == '__main__':
 
-    # pnl_stocks['Portfolio'] = pnl_stocks.sum(axis=1)
 
-    # pnl_stock = pnl_stocks['Portfolio'].cumsum()
-    #
-    # pnl_stock.plot()
-    # plt.show()
-
-    # test = portfolio_value['Portfolio'] - invested
-    # test.plot()
+    profit = (portfolio_value['Portfolio'] - invested)
 
     pnl_stocks.plot()
+    profit.plot()
     plt.show()
 
     # creating the index to compare our strategy to
