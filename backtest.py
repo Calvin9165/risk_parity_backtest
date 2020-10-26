@@ -14,10 +14,6 @@ nyse = mcal.get_calendar(name='NYSE')
 schedule = nyse.schedule(start_date=securities_pct.index[0], end_date=securities_pct.index[-1])
 schedule = schedule.index
 
-print(schedule[:30])
-print(schedule[0])
-print(schedule[0] + timedelta(21))
-
 # the frequency with which we rebalance the portfolio
 rebal_freq = 21
 
@@ -48,6 +44,7 @@ for t in range(1, len(securities_pct), rebal_freq):
     portfolio_value.loc[rb_day: rb_end, 'Portfolio'] = np.nansum(positions.loc[rb_day: rb_end], axis=1)
 
 if __name__ == '__main__':
+    
     # creating the index to compare our strategy to
     index = create_index(start=portfolio_value.index[0],
                          end=portfolio_value.index[-1],
