@@ -107,7 +107,9 @@ def backtest_perf_plot(equity_curve, rolling_dd, position_pnl, comparison=False,
 
     # plotting the PnL for individual positions
     ax3 = fig.add_subplot(3, 1, 3)
-    ax3.plot(position_pnl)
+
+    for position in position_pnl:
+        ax3.plot(position_pnl[position], label=position)
 
     formatter = ticker.StrMethodFormatter('${x:,.0f}')
     ax3.yaxis.set_major_formatter(formatter)
