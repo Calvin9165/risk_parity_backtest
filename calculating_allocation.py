@@ -46,13 +46,14 @@ allocation = calculate_allocation(df_pct=securities_pct,
                                   target_vol=0.10,
                                   rebal_freq=21)
 
+
+securities_pct['Cash'] = 0
+
 # removing the daily pct_change data that's not required
 # this would be the data that's used to calculate the allocation, but no allocation is determined yet
-securities_pct = securities_pct.loc[allocation.index[0]:]
+# have to use copy otherwise we get set with copy warning
+securities_pct = securities_pct.loc[allocation.index[0]:].copy()
 
 if __name__ == '__main__':
     allocation.plot()
-    plt.show()
-
-    # print(securities_pct)
 
