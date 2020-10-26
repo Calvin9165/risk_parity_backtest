@@ -7,6 +7,12 @@ from math import sqrt
 
 from load_data import securities_pct
 
+import pandas_market_calendars as mcal
+
+
+# nyse = mcal.get_calendar(name='NYSE')
+# schedule = nyse.schedule(start_date='2000',end_date='2005')
+
 # # resetting the Date column to the index for the time being
 securities_pct.set_index(keys='Date', inplace=True)
 
@@ -37,12 +43,16 @@ def calculate_allocation(df_pct, vol_period, target_vol, rebal_freq):
 
 allocation = calculate_allocation(df_pct=securities_pct,
                                   vol_period=lookback,
-                                  target_vol=0.05,
+                                  target_vol=0.10,
                                   rebal_freq=21)
 
-securities_pct = securities_pct.iloc[lookback:]
-
+# removing the daily pct_change data that's not required
+# this would be the data that's used to calculate the allocation, but no allocation is determined yet
+securities_pct = securities_pct.loc[allocation.index[0]:]
 
 if __name__ == '__main__':
     allocation.plot()
     plt.show()
+
+    # print(securities_pct)
+
