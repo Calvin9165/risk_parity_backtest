@@ -55,58 +55,43 @@ for t in range(1, len(securities_pct), rebal_freq):
 
 if __name__ == '__main__':
 
-    pnl_v_port = pnl_positions.sum(axis=1) + 1000
+    # creating the index to compare our strategy to
+    index = create_index(start=portfolio_value.index[0],
+                         end=portfolio_value.index[-1],
+                         index_ticker='SPY')
 
-    fig = plt.figure()
+    # same initial investment as our backtested strategy
+    index = index * invested
 
-    ax1 = fig.add_subplot()
+    # CAGR
+    strat_cagr = cagr(portfolio_value['Portfolio'])
+    strat_cagr = '{:.2%}'.format(strat_cagr)
 
-    ax1.plot(portfolio_value['Portfolio'], label='portfolio')
-    ax1.plot(pnl_v_port, label='pnl')
+    # drawdowns
+    drawdowns = drawdowns(portfolio_value['Portfolio'])
+    max_dd = min(drawdowns.fillna(0))
+    max_dd = '{:.2%}'.format(max_dd)
 
-    plt.legend()
+    # volatility
+    vol = volatility(portfolio_value['Portfolio'])
+    vol = '{:.2%}'.format(vol)
+
+    strat_start = portfolio_value.index[0].strftime('%Y-%m-%d')
+    strat_end = portfolio_value.index[-1].strftime('%Y-%m-%d')
+
+    # plotting the performance of our backtest with an index
+    perf_chart = backtest_perf_plot(equity_curve=portfolio_value,
+                                    rolling_dd=drawdowns,
+                                    position_pnl=pnl_positions,
+                                    comparison=True,
+                                    index=index)
     plt.show()
 
+    print('The CAGR for Risk Parity from {} to {} was {} with an annualized volatility of {}'.format(strat_start,
+                                                                                                     strat_end,
+                                                                                                     strat_cagr,
+                                                                                                     vol))
 
-
-
-    # # creating the index to compare our strategy to
-    # index = create_index(start=portfolio_value.index[0],
-    #                      end=portfolio_value.index[-1],
-    #                      index_ticker='SPY')
-    #
-    # # same initial investment as our backtested strategy
-    # index = index * invested
-    #
-    # # CAGR
-    # strat_cagr = cagr(portfolio_value['Portfolio'])
-    # strat_cagr = '{:.2%}'.format(strat_cagr)
-    #
-    # # drawdowns
-    # drawdowns = drawdowns(portfolio_value['Portfolio'])
-    # max_dd = min(drawdowns.fillna(0))
-    # max_dd = '{:.2%}'.format(max_dd)
-    #
-    # # volatility
-    # vol = volatility(portfolio_value['Portfolio'])
-    # vol = '{:.2%}'.format(vol)
-    #
-    # strat_start = portfolio_value.index[0].strftime('%Y-%m-%d')
-    # strat_end = portfolio_value.index[-1].strftime('%Y-%m-%d')
-    #
-    # # plotting the performance of our backtest with an index
-    # perf_chart = backtest_perf_plot(equity_curve=portfolio_value,
-    #                                 rolling_dd=drawdowns,
-    #                                 position_pnl=pnl_positions,
-    #                                 comparison=True,
-    #                                 index=index)
-    # plt.show()
-    #
-    # print('The CAGR for Risk Parity from {} to {} was {} with an annualized volatility of {}'.format(strat_start,
-    #                                                                                                  strat_end,
-    #                                                                                                  strat_cagr,
-    #                                                                                                  vol))
-    #
-    # print('The Max Drawdown for Risk Parity between {} and {} was {}'.format(strat_start,
-    #                                                                          strat_end,
-    #                                                                          max_dd))
+    print('The Max Drawdown for Risk Parity between {} and {} was {}'.format(strat_start,
+                                                                             strat_end,
+                                                                             max_dd))
