@@ -48,49 +48,65 @@ for t in range(1, len(securities_pct), rebal_freq):
 
         # NOTE: This method is accurate, but isn't perfect - is usually 2%-3% off from backtest #'s over period of time
         # but that's okay since this is quick and dirty to begin with and gets the message across and does so quite accurately, just not perfectly
-        pnl_positions.loc[rb_day:rb_end, position] = (positions.loc[rb_day:rb_end, position] - positions.loc[rb_day, position]) + pnl_positions.loc[rb_value, position]
+        pnl_positions.loc[rb_day:rb_end, position] = (positions.loc[rb_day:rb_end, position] - portfolio_value['Portfolio'][rb_value] * allocation[position][rb_day]
+                                                      ) + pnl_positions.loc[rb_value, position]
 
     portfolio_value.loc[rb_day: rb_end, 'Portfolio'] = np.nansum(positions.loc[rb_day: rb_end], axis=1)
 
 if __name__ == '__main__':
 
-    # creating the index to compare our strategy to
-    index = create_index(start=portfolio_value.index[0],
-                         end=portfolio_value.index[-1],
-                         index_ticker='SPY')
+    pnl_v_port = pnl_positions.sum(axis=1) + 1000
 
-    # same initial investment as our backtested strategy
-    index = index * invested
+    fig = plt.figure()
 
-    # CAGR
-    strat_cagr = cagr(portfolio_value['Portfolio'])
-    strat_cagr = '{:.2%}'.format(strat_cagr)
+    ax1 = fig.add_subplot()
 
-    # drawdowns
-    drawdowns = drawdowns(portfolio_value['Portfolio'])
-    max_dd = min(drawdowns.fillna(0))
-    max_dd = '{:.2%}'.format(max_dd)
+    ax1.plot(portfolio_value['Portfolio'], label='portfolio')
+    ax1.plot(pnl_v_port, label='pnl')
 
-    # volatility
-    vol = volatility(portfolio_value['Portfolio'])
-    vol = '{:.2%}'.format(vol)
-
-    strat_start = portfolio_value.index[0].strftime('%Y-%m-%d')
-    strat_end = portfolio_value.index[-1].strftime('%Y-%m-%d')
-
-    # plotting the performance of our backtest with an index
-    perf_chart = backtest_perf_plot(equity_curve=portfolio_value,
-                                    rolling_dd=drawdowns,
-                                    position_pnl=pnl_positions,
-                                    comparison=True,
-                                    index=index)
+    plt.legend()
     plt.show()
 
-    print('The CAGR for Risk Parity from {} to {} was {} with an annualized volatility of {}'.format(strat_start,
-                                                                                                     strat_end,
-                                                                                                     strat_cagr,
-                                                                                                     vol))
 
-    print('The Max Drawdown for Risk Parity between {} and {} was {}'.format(strat_start,
-                                                                             strat_end,
-                                                                             max_dd))
+
+
+    # # creating the index to compare our strategy to
+    # index = create_index(start=portfolio_value.index[0],
+    #                      end=portfolio_value.index[-1],
+    #                      index_ticker='SPY')
+    #
+    # # same initial investment as our backtested strategy
+    # index = index * invested
+    #
+    # # CAGR
+    # strat_cagr = cagr(portfolio_value['Portfolio'])
+    # strat_cagr = '{:.2%}'.format(strat_cagr)
+    #
+    # # drawdowns
+    # drawdowns = drawdowns(portfolio_value['Portfolio'])
+    # max_dd = min(drawdowns.fillna(0))
+    # max_dd = '{:.2%}'.format(max_dd)
+    #
+    # # volatility
+    # vol = volatility(portfolio_value['Portfolio'])
+    # vol = '{:.2%}'.format(vol)
+    #
+    # strat_start = portfolio_value.index[0].strftime('%Y-%m-%d')
+    # strat_end = portfolio_value.index[-1].strftime('%Y-%m-%d')
+    #
+    # # plotting the performance of our backtest with an index
+    # perf_chart = backtest_perf_plot(equity_curve=portfolio_value,
+    #                                 rolling_dd=drawdowns,
+    #                                 position_pnl=pnl_positions,
+    #                                 comparison=True,
+    #                                 index=index)
+    # plt.show()
+    #
+    # print('The CAGR for Risk Parity from {} to {} was {} with an annualized volatility of {}'.format(strat_start,
+    #                                                                                                  strat_end,
+    #                                                                                                  strat_cagr,
+    #                                                                                                  vol))
+    #
+    # print('The Max Drawdown for Risk Parity between {} and {} was {}'.format(strat_start,
+    #                                                                          strat_end,
+    #                                                                          max_dd))
