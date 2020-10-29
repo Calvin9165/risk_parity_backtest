@@ -30,24 +30,29 @@ positions = pd.DataFrame(data=None, columns=securities_pct.columns, index=securi
 # pnl_stocks will hold the net PnL Data for each stock over the entire backtest
 pnl_positions = pd.DataFrame(data=0, columns=securities_pct.columns, index=securities_pct.index)
 
+# the common date index between returns, securities_pct
+dates = securities_pct.index
 
+for t in range(0, len(securities_pct), rebal_freq):
 
-for t in range(1, len(securities_pct), rebal_freq):
+    if t == 0:
+        rb_day = dates[t]
+    else:
+        rb_day = dates[t + 1]
 
-    rb_day = securities_pct.index[t]
-    rb_value = securities_pct.index[t - 1]
+    # the day that we rebalance the portfolio, use this value in portfolio_value to calculate allocation
+    rb_value = dates[t]
 
     try:
-        rb_end = securities_pct.index[t + rebal_freq]
+        rb_end = dates[t + rebal_freq]
     except IndexError:
-        rb_end = securities_pct.index[-1]
+        rb_end = dates[-1]
 
     for position in positions:
+
         positions.loc[rb_day: rb_end, position] = portfolio_value['Portfolio'][rb_value] * (
                     allocation[position][rb_day] * np.cumprod(1 + securities_pct.loc[rb_day: rb_end, position]))
 
-        # NOTE: This method is accurate, but isn't perfect - is usually 2%-3% off from backtest #'s over period of time
-        # but that's okay since this is quick and dirty to begin with and gets the message across and does so quite accurately, just not perfectly
         pnl_positions.loc[rb_day:rb_end, position] = (positions.loc[rb_day:rb_end, position] - portfolio_value['Portfolio'][rb_value] * allocation[position][rb_day]
                                                       ) + pnl_positions.loc[rb_value, position]
 
