@@ -31,6 +31,8 @@ positions = pd.DataFrame(data=None, columns=securities, index=dates)
 # pnl_stocks will hold the net PnL Data for each stock over the entire backtest
 pnl_positions = pd.DataFrame(data=0, columns=securities, index=dates)
 
+# print(allocation.index)
+
 for t in range(0, len(securities_pct), rebal_freq):
 
     if t == 0:
