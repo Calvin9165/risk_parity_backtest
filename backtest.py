@@ -9,29 +9,27 @@ import pandas_market_calendars as mcal
 from calculating_allocation import allocation, securities_pct
 from perf_funcs import cagr, drawdowns, volatility, backtest_perf_plot, create_index
 
-# creating the trading day calendar that we'll use for rebalancing
-nyse = mcal.get_calendar(name='NYSE')
-schedule = nyse.schedule(start_date=securities_pct.index[0], end_date=securities_pct.index[-1])
-schedule = schedule.index
-
 # the frequency with which we rebalance the portfolio
 rebal_freq = 21
 
 # the initial investment
 invested = 1000
 
+# the common date index between returns, securities_pct
+dates = securities_pct.index
+
+# the securities present in the backtest
+securities = securities_pct.columns
+
 # the dollar value of the portfolio
-portfolio_value = pd.DataFrame(data=None, columns=['Portfolio'], index=securities_pct.index)
+portfolio_value = pd.DataFrame(data=None, columns=['Portfolio'], index=dates)
 portfolio_value.iloc[0]['Portfolio'] = invested
 
 # the $ value allocated in each position
-positions = pd.DataFrame(data=None, columns=securities_pct.columns, index=securities_pct.index)
+positions = pd.DataFrame(data=None, columns=securities, index=dates)
 
 # pnl_stocks will hold the net PnL Data for each stock over the entire backtest
-pnl_positions = pd.DataFrame(data=0, columns=securities_pct.columns, index=securities_pct.index)
-
-# the common date index between returns, securities_pct
-dates = securities_pct.index
+pnl_positions = pd.DataFrame(data=0, columns=securities, index=dates)
 
 for t in range(0, len(securities_pct), rebal_freq):
 
@@ -49,17 +47,17 @@ for t in range(0, len(securities_pct), rebal_freq):
         rb_end = dates[-1]
 
     for position in positions:
-
         positions.loc[rb_day: rb_end, position] = portfolio_value['Portfolio'][rb_value] * (
-                    allocation[position][rb_day] * np.cumprod(1 + securities_pct.loc[rb_day: rb_end, position]))
+                allocation[position][rb_day] * np.cumprod(1 + securities_pct.loc[rb_day: rb_end, position]))
 
-        pnl_positions.loc[rb_day:rb_end, position] = (positions.loc[rb_day:rb_end, position] - portfolio_value['Portfolio'][rb_value] * allocation[position][rb_day]
+        pnl_positions.loc[rb_day:rb_end, position] = (positions.loc[rb_day:rb_end, position] -
+                                                      portfolio_value['Portfolio'][rb_value] * allocation[position][
+                                                          rb_day]
                                                       ) + pnl_positions.loc[rb_value, position]
 
     portfolio_value.loc[rb_day: rb_end, 'Portfolio'] = np.nansum(positions.loc[rb_day: rb_end], axis=1)
 
 if __name__ == '__main__':
-
     # creating the index to compare our strategy to
     index = create_index(start=portfolio_value.index[0],
                          end=portfolio_value.index[-1],
